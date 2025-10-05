@@ -1,2 +1,1 @@
-# nix-shared-library
-
+# nix-sharedlib
