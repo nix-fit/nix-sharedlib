@@ -35,7 +35,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     public final static String CONTAINER_MEMORY_LIMIT_ARG_NAME = 'memLimit'
 
     protected final static String DEPLOY_CONTAINER_IMAGE_NAME =
-            'nix-docker.registry.twcstorage.ru/ci/deploy/common-deploy:1.0.0000@sha256:45389a3093a2d26bea81a5320ec8a01e021c26f381fef610d822eb43dc9e5f26'
+            'nix-docker.registry.twcstorage.ru/ci/deploy/common-deploy:1.1.0000@sha256:099538737425e30282b05ef01579be17300a342fe1c113ebd48b5477c33a6b84'
     protected final static String BUILD_CONTAINER_IMAGE_NAME =
             'nix-docker.registry.twcstorage.ru/ci/build/common-build:1.0.0000@sha256:d16f74f1c0c7d968960285a069a6b3aa326d44a73ebe6c23f0be6ce891bd5939'
     protected final static String JNLP_CONTAINER_IMAGE_NAME =
