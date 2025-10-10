@@ -10,7 +10,7 @@ class BuildAgentFactory {
     /**
      * get build agent
      */ 
-    static AgentRunner getAgent(Script script) {
+    static AgentRunner getBuildAgent(Script script) {
         return new KubeBuildAgent(script)
     }
 

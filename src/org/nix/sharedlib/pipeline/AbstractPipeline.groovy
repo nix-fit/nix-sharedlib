@@ -45,4 +45,20 @@ class AbstractPipeline {
         return "${script.env.WORKSPACE}/${dirName}"
     }
 
+    /**
+     * parse Organization Folder repo url (Multibranch Pipeline)
+     */ 
+    List parseRepoUrl(String repoUrl) {
+        String fullRepoName = repoUrl
+            .tokenize('/')[-1]
+            .replace('.git', '')
+
+        List fullRepoNameAttrs = fullRepoName.split('-', 2)
+
+        String repoType = fullRepoNameAttrs.size() > 1 ? fullRepoNameAttrs[0] : ''
+        String repoName = fullRepoNameAttrs.size() > 1 ? fullRepoNameAttrs[1] : fullRepoNameAttrs[0]
+
+        return [repoType, repoName]
+    }
+
 }

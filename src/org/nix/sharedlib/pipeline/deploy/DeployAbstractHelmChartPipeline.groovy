@@ -14,10 +14,10 @@ abstract class DeployAbstractHelmChartPipeline extends AbstractPipeline {
     protected int agentTimeout = 15
     protected String artifactAbsoluteRepoPath = ''
     protected String chartRepoName = ''
-    protected String chartRepoBranch = 'master'
+    protected String chartRepoBranch = GitUtils.GIT_RELEASE_BRANCH
     protected String deployTimeout = '10m'
     protected String environment = ''
-    protected String environmentRepoBranch = 'master'
+    protected String environmentRepoBranch = GitUtils.GIT_RELEASE_BRANCH
     protected String environmentAbsoluteRepoPath = ''
     protected String namespace = ''
 
@@ -57,7 +57,7 @@ abstract class DeployAbstractHelmChartPipeline extends AbstractPipeline {
     protected void checkoutEnvironmentRepoStage() {
         stage('Checkout Kubernetes environment repo') {
             agent.clearWorkspace()
-            environmentAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo(CDP_REPO_NAME, '', '', environmentRepoBranch)
+            environmentAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo('', '', CDP_REPO_NAME, environmentRepoBranch)
         }
     }
 

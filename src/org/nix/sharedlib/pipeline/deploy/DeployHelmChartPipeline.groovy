@@ -23,7 +23,7 @@ class DeployHelmChartPipeline extends DeployAbstractHelmChartPipeline {
     @Override
     protected void downloadArtifactStage() {
         stage('Download artifact') {
-            artifactAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo('', HELM_CHART_REPO_PREFIX, chartRepoName, chartRepoBranch)
+            artifactAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo(HELM_CHART_REPO_PREFIX, chartRepoName, '', chartRepoBranch)
         }
     }
 
@@ -32,13 +32,13 @@ class DeployHelmChartPipeline extends DeployAbstractHelmChartPipeline {
         // chart repo name
         chartRepoName = args.get('chartRepoName')
         // chart repo branch
-        chartRepoBranch = args.get('chartRepoBranch', 'master')
+        chartRepoBranch = args.get('chartRepoBranch', GitUtils.GIT_RELEASE_BRANCH)
         // kubernetes environment (dev/prod)
         environment = args.get('environment')
         // kubernetes namespace (frontend/backend/keycloak)
         namespace = args.get('namespace')
         // kubernetes environment repo branch
-        environmentRepoBranch = args.get('environmentRepoBranch', 'master')
+        environmentRepoBranch = args.get('environmentRepoBranch', GitUtils.GIT_RELEASE_BRANCH)
         // deploy timeout
         deployTimeout = args.get('deployTimeout', '10m')
     }
