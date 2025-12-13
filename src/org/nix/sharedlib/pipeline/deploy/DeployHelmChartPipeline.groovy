@@ -1,5 +1,7 @@
 package org.nix.sharedlib.pipeline.deploy
 
+import org.nix.sharedlib.git.GitUtils
+
 /**
  * Deploy Helm chart
  */

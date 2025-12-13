@@ -1,6 +1,9 @@
 package org.nix.sharedlib.helm
 
 import org.nix.sharedlib.pipeline.AbstractPipeline
+import org.nix.sharedlib.docker.DockerUtils
+
+import groovy.json.JsonOutput
 
 /**
  * Helm utils
@@ -20,8 +23,11 @@ class HelmUtils extends AbstractPipeline {
     private final static String HELM_KUBECONFIG_CREDENTIALS_VARIABLE = 'KUBECONFIG'
     private final static String HELM_SOPS_CREDENTIALS_VARIABLE = 'SOPS_AGE_KEY_FILE'
 
+    protected DockerUtils dockerUtils
+
     HelmUtils(Script script) {
         super(script)
+        dockerUtils = new DockerUtils(script)
     }
 
     /**
@@ -43,6 +49,10 @@ class HelmUtils extends AbstractPipeline {
             if (script.fileExists(helmSecretsValuesFile)) {
                 log.info('Detected secrets.yaml in Kubernetes environment repo. Adding it to helmValuesArgs')
                 helmValuesArgs += " --values ${helmSecretsValuesFile}"
+            }
+            log.info('Update dependencies')
+            dockerUtils.withDockerRegistryAuth(DockerUtils.DOCKER_REGISTRY_ADDRESS, DockerUtils.DOCKER_REGISTRY_CREDENTIALS_ID) {
+                script.sh 'helm dependency update'
             }
             log.info('Showing diff')
             script.sh """
