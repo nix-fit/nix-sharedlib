@@ -1,11 +1,11 @@
 package org.nix.sharedlib.agent.kubernetes
 
 /**
- * Kubernetes build agent
+ * Kubernetes build Dotnet agent
  */
-class KubeBuildAgent extends KubeAgent {
+class KubeBuildDotnetAgent extends KubeAgent {
 
-    KubeBuildAgent(Script script) {
+    KubeBuildDotnetAgent(Script script) {
         super(script)
     }
 
@@ -15,7 +15,7 @@ class KubeBuildAgent extends KubeAgent {
             cloud: CLOUD_NAME,
             containers: [
                 jnlpContainerSpec,
-                buildContainerSpec,
+                getBuildDotnetContainerSpec(args),
             ]
         ) {
             script.node(script.env.POD_LABEL) {
