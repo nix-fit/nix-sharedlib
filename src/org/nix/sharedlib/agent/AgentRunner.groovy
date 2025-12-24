@@ -18,6 +18,6 @@ interface AgentRunner {
     /**
      * wrapper for node
      */ 
-    void nodeWrapper(String agentLabels, int timeout, Closure body)
+    void nodeWrapper(int timeout, Map args, Closure body)
 
 }

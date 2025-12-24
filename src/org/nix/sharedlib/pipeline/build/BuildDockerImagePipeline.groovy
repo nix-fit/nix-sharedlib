@@ -9,7 +9,6 @@ import org.nix.sharedlib.git.GitUtils
 class BuildDockerImagePipeline extends BuildAbstractAppPipeline {
 
     protected String dockerImageSubPath = 'undefined'
-    protected String contextDir = '.'
     protected String versionFilePath = 'version'
     protected String currentVersion = ''
     protected boolean testRelease = false
@@ -29,7 +28,7 @@ class BuildDockerImagePipeline extends BuildAbstractAppPipeline {
         try {
             agent = BuildAgentFactory.getBuildAgent(script)
             parseArgs(args)
-            agent.nodeWrapper('', agentTimeout) {
+            agent.nodeWrapper(agentTimeout, args) {
                 checkoutProjectRepoStage()
                 buildStage()
             }
