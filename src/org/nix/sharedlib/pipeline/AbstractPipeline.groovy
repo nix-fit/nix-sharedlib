@@ -22,7 +22,7 @@ class AbstractPipeline {
 
     /**
      * fail current build
-     */ 
+     */
     void failCurrentBuild(String errorMessage) {
         script.currentBuild.result = 'FAILURE'
         this.errorMessage = errorMessage
@@ -30,7 +30,7 @@ class AbstractPipeline {
 
     /**
      * stage
-     */ 
+     */
     void stage(String name, Closure body) {
         script.stage(name) {
             failedStage = name
@@ -40,7 +40,7 @@ class AbstractPipeline {
 
     /**
      * get absolute dir path
-     */ 
+     */
     String getAbsoluteDirPath(String dirName) {
         return "${script.env.WORKSPACE}/${dirName}"
     }

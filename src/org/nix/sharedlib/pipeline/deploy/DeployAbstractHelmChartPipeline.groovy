@@ -11,6 +11,8 @@ import org.nix.sharedlib.pipeline.AbstractPipeline
  */
 abstract class DeployAbstractHelmChartPipeline extends AbstractPipeline {
 
+    protected final static String CDP_REPO_NAME = 'nix-kubernetes'
+
     protected int agentTimeout = 15
     protected String artifactAbsoluteRepoPath = ''
     protected String chartRepoName = ''
@@ -20,8 +22,6 @@ abstract class DeployAbstractHelmChartPipeline extends AbstractPipeline {
     protected String environmentRepoBranch = GitUtils.GIT_RELEASE_BRANCH
     protected String environmentAbsoluteRepoPath = ''
     protected String namespace = ''
-
-    protected final static String CDP_REPO_NAME = 'nix-kubernetes'
 
     protected AgentRunner agent
     protected GitUtils gitUtils
@@ -40,7 +40,7 @@ abstract class DeployAbstractHelmChartPipeline extends AbstractPipeline {
         try {
             agent = DeployAgentFactory.getAgent(script)
             parseArgs(args)
-            agent.nodeWrapper('', agentTimeout) {
+            agent.nodeWrapper(agentTimeout, args) {
                 checkoutEnvironmentRepoStage()
                 downloadArtifactStage()
                 deployStage()

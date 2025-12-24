@@ -33,7 +33,7 @@ abstract class BuildAbstractAppPipeline extends AbstractPipeline {
     protected void checkoutProjectRepoStage() {
         stage('Checkout project repo') {
             agent.clearWorkspace()
-            projectRepoUrl = gitUtils.getRepoUrlFromScm()
+            projectRepoUrl = gitUtils.repoUrlFromScm()
             String sshProjectRepoUrl = gitUtils.httpsToSshGitHubUrl(projectRepoUrl)
             projectRepoName = gitUtils.getRepoNameFromScmUrl(sshProjectRepoUrl)
             String currentProjectRepoBranch = script.env.BRANCH_NAME

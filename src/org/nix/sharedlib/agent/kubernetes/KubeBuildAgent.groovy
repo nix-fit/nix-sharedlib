@@ -10,12 +10,13 @@ class KubeBuildAgent extends KubeAgent {
     }
 
     @Override
-    void nodeWrapper(String agentLabels, int timeout, Closure body) {
+    void nodeWrapper(int timeout, Map args = [:], Closure body) {
         script.podTemplate(
             cloud: CLOUD_NAME,
+            yaml: getBuildContainerSecuritySpec(true),
             containers: [
-                jnlpContainerSpec,
                 buildContainerSpec,
+                jnlpContainerSpec,
             ]
         ) {
             script.node(script.env.POD_LABEL) {

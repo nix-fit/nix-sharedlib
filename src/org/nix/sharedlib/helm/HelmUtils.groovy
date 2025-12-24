@@ -3,8 +3,6 @@ package org.nix.sharedlib.helm
 import org.nix.sharedlib.pipeline.AbstractPipeline
 import org.nix.sharedlib.docker.DockerUtils
 
-import groovy.json.JsonOutput
-
 /**
  * Helm utils
  */
@@ -33,7 +31,8 @@ class HelmUtils extends AbstractPipeline {
     /**
      * install Helm release
      */
-    void installHelmRelease(String chartRepoName, String environment, String namespace, String environmentAbsoluteRepoPath, String deployTimeout) {
+    void installHelmRelease(String chartRepoName, String environment, String namespace,
+            String environmentAbsoluteRepoPath, String deployTimeout) {
         script.withCredentials([
             script.file(
                 credentialsId: HELM_CREDENTIALS_IDS[environment]['kubeconfig'],
@@ -44,19 +43,25 @@ class HelmUtils extends AbstractPipeline {
                 variable: HELM_SOPS_CREDENTIALS_VARIABLE
             )
         ]) {
-            String helmValuesArgs = "--values ${environmentAbsoluteRepoPath}/environment/${environment}/main.yaml"
-            String helmAppValuesFile = "${environmentAbsoluteRepoPath}/environment/${environment}/${chartRepoName}/main.yaml"
+            String helmValuesArgs =
+                "--values ${environmentAbsoluteRepoPath}/environment/${environment}/main.yaml"
+            String helmAppValuesFile =
+                "${environmentAbsoluteRepoPath}/environment/${environment}/${chartRepoName}/main.yaml"
             if (script.fileExists(helmAppValuesFile)) {
-                log.info("Detected ${chartRepoName}/main.yaml in Kubernetes environment repo. Adding it to helmValuesArgs")
+                log.info("Detected ${chartRepoName}/main.yaml in Kubernetes environment repo. " +
+                    'Adding it to helmValuesArgs')
                 helmValuesArgs += " --values ${helmAppValuesFile}"
             }
-            String helmSecretsValuesFile = "${environmentAbsoluteRepoPath}/environment/${environment}/${chartRepoName}/secrets.yaml"
+            String helmSecretsValuesFile =
+                "${environmentAbsoluteRepoPath}/environment/${environment}/${chartRepoName}/secrets.yaml"
             if (script.fileExists(helmSecretsValuesFile)) {
                 log.info('Detected secrets.yaml in Kubernetes environment repo. Adding it to helmValuesArgs')
                 helmValuesArgs += " --values ${helmSecretsValuesFile}"
             }
             log.info('Update dependencies')
-            dockerUtils.withDockerRegistryAuth(DockerUtils.DOCKER_REGISTRY_ADDRESS, DockerUtils.DOCKER_REGISTRY_CREDENTIALS_ID) {
+            dockerUtils.withDockerRegistryAuth(
+                DockerUtils.DOCKER_REGISTRY_ADDRESS, DockerUtils.DOCKER_REGISTRY_CREDENTIALS_ID
+            ) {
                 script.sh 'helm dependency update'
             }
             log.info('Showing diff')

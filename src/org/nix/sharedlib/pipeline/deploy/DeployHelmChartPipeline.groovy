@@ -19,7 +19,13 @@ class DeployHelmChartPipeline extends DeployAbstractHelmChartPipeline {
             script.dir(artifactAbsoluteRepoPath) {
                 // remove repo prefix
                 String releaseName = removeRepoPrefix(chartRepoName, HELM_CHART_REPO_PREFIX)
-                helmUtils.installHelmRelease(releaseName, environment, namespace, environmentAbsoluteRepoPath, deployTimeout)
+                helmUtils.installHelmRelease(
+                    releaseName,
+                    environment,
+                    namespace,
+                    environmentAbsoluteRepoPath,
+                    deployTimeout
+                )
             }
         }
     }

@@ -9,7 +9,7 @@ class DeployAgentFactory {
 
     /**
      * get deploy agent
-     */ 
+     */
     static AgentRunner getAgent(Script script) {
         return new KubeDeployAgent(script)
     }

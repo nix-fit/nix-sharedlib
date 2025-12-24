@@ -10,7 +10,7 @@ class KubeDeployAgent extends KubeAgent {
     }
 
     @Override
-    void nodeWrapper(String agentLabels, int timeout, Closure body) {
+    void nodeWrapper(int timeout, Map args = [:], Closure body) {
         script.podTemplate(
             cloud: CLOUD_NAME,
             containers: [

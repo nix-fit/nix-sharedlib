@@ -1,22 +1,20 @@
 package org.nix.sharedlib.pipeline.build
 
 import org.nix.sharedlib.agent.BuildAgentFactory
-import org.nix.sharedlib.git.GitUtils
 
 /**
  * Build Docker image pipeline
  */
 class BuildDockerImagePipeline extends BuildAbstractAppPipeline {
 
+    private final static String DOCKER_REPO_PREFIX = 'docker-'
+
     protected String dockerImageSubPath = 'undefined'
-    protected String contextDir = '.'
     protected String versionFilePath = 'version'
     protected String currentVersion = ''
     protected boolean testRelease = false
 
     protected String cacheTag = 'cache'
-
-    private final static String DOCKER_REPO_PREFIX = 'docker-'
 
     BuildDockerImagePipeline(Script script) {
         super(script)
@@ -29,7 +27,7 @@ class BuildDockerImagePipeline extends BuildAbstractAppPipeline {
         try {
             agent = BuildAgentFactory.getBuildAgent(script)
             parseArgs(args)
-            agent.nodeWrapper('', agentTimeout) {
+            agent.nodeWrapper(agentTimeout, args) {
                 checkoutProjectRepoStage()
                 buildStage()
             }
@@ -39,6 +37,9 @@ class BuildDockerImagePipeline extends BuildAbstractAppPipeline {
         }
     }
 
+    /**
+     * build Docker image stage
+     */
     @Override
     protected void buildStage() {
         stage('Build Docker image') {
