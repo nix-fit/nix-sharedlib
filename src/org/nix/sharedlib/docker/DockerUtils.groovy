@@ -18,7 +18,7 @@ class DockerUtils extends AbstractPipeline {
     private final static int VERSION_PATCH_GROUP = 3
     private final static int VERSION_SUFFIX_GROUP = 4
     private final static Pattern VERSION_PATTERN =
-            ~ /^(\d+)\.(\d+)\.(\d+)(?:-([^\s]+))?$/
+            ~ /^(\d+)\.(\d+)(?:\.(\d+))?(?:-([^\s]+))?$/
 
     private final static String DOCKER_REGISTRY_ADDRESS = 'nix-docker.registry.twcstorage.ru'
     private final static String DOCKER_REGISTRY_CREDENTIALS_ID = 'docker_registry_auth'
@@ -102,9 +102,9 @@ class DockerUtils extends AbstractPipeline {
     /**
      * get new Docker image tag
      */
-    String getNewDockerImageTag(String dockerImageName, String dockerImageSubPath, String version, String baseVersion) {
+    String getNewDockerImageTag(String dockerImageName, String dockerImageSubPath, String baseVersion) {
         String newImageTag = ''
-        String latestImageTag = getlatestDockerImageTagFromRegistry(dockerImageName, dockerImageSubPath, version)
+        String latestImageTag = getlatestDockerImageTagFromRegistry(dockerImageName, dockerImageSubPath, baseVersion)
         if (latestImageTag) {
             log.info("Image tag ${latestImageTag} already exists, calling increment function")
             newImageTag = incrementVersion(latestImageTag)
@@ -118,10 +118,10 @@ class DockerUtils extends AbstractPipeline {
      * validate version
      */
     private static Matcher validateVersion(String version) {
-        // accepts versions: X.Y.Z, X.Y.Z-suffix
+        // accepts versions: X.Y.Z, X.Y.Z-suffix, X.Y or X.Y-suffix
         Matcher matcher = version =~ VERSION_PATTERN
         if (!matcher.matches()) {
-            throw new IllegalArgumentException('Invalid version format. Acceptable: X.Y.Z or X.Y.Z-suffix')
+            throw new IllegalArgumentException('Invalid version format. Acceptable: X.Y.Z, X.Y.Z-suffix, X.Y or X.Y-suffix')
         }
         return matcher
     }
@@ -137,9 +137,11 @@ class DockerUtils extends AbstractPipeline {
         String patch = matcher.group(VERSION_PATCH_GROUP)
         String suffix = matcher.group(VERSION_SUFFIX_GROUP)
 
-        String formattedVersion = "${major}.${minor}.${patch}000" + (suffix ? "-${suffix}" : '')
-        
-        return formattedVersion
+        if (patch) {
+            return "${major}.${minor}.${patch}000" + (suffix ? "-${suffix}" : '')
+        } else {
+            return "${major}.${minor}000" + (suffix ? "-${suffix}" : '')
+        }
     }
 
     /**
@@ -150,12 +152,19 @@ class DockerUtils extends AbstractPipeline {
 
         int major = matcher.group(VERSION_MAJOR_GROUP) as int
         int minor = matcher.group(VERSION_MINOR_GROUP) as int
-        int patch = (matcher.group(VERSION_PATCH_GROUP) as int) + 1
+        String patchStr = matcher.group(VERSION_PATCH_GROUP)
         String suffix = matcher.group(VERSION_SUFFIX_GROUP)
 
-        String patchPadded = String.format("%04d", patch)
-
-        return "${major}.${minor}.${patchPadded}" + (suffix ? "-${suffix}" : '')
+        if (patchStr) {
+            int patch = patchStr as int
+            patch++
+            String patchPadded = String.format("%04d", patch)
+            return "${major}.${minor}.${patchPadded}" + (suffix ? "-${suffix}" : '')
+        } else {
+            minor++
+            String minorPadded = String.format("%04d", minor)
+            return "${major}.${minorPadded}" + (suffix ? "-${suffix}" : '')
+        }
     }
 
     /**
@@ -176,7 +185,7 @@ class DockerUtils extends AbstractPipeline {
         log.info("Base version: ${baseVersion}")
         boolean isReleaseBranch = gitUtils.isReleaseBranch() || testRelease
         String dockerImageTag = isReleaseBranch
-            ? getNewDockerImageTag(dockerImageName, dockerImageSubPath, version, baseVersion)
+            ? getNewDockerImageTag(dockerImageName, dockerImageSubPath, baseVersion)
             : baseVersion + "-snapshot"
         String dockerImageFullPath = "${DOCKER_REGISTRY_ADDRESS}/${dockerImageSubPath}/${dockerImageName}:${dockerImageTag}"
         String buildkitCacheArgs = isReleaseBranch ?
