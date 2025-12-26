@@ -40,7 +40,7 @@ abstract class DeployAbstractHelmChartPipeline extends AbstractPipeline {
         try {
             agent = DeployAgentFactory.getAgent(script)
             parseArgs(args)
-            agent.nodeWrapper(chartRepoName, agentTimeout) {
+            agent.nodeWrapper('', agentTimeout) {
                 checkoutEnvironmentRepoStage()
                 downloadArtifactStage()
                 deployStage()
@@ -57,7 +57,7 @@ abstract class DeployAbstractHelmChartPipeline extends AbstractPipeline {
     protected void checkoutEnvironmentRepoStage() {
         stage('Checkout Kubernetes environment repo') {
             agent.clearWorkspace()
-            environmentAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo('', '', CDP_REPO_NAME, environmentRepoBranch)
+            environmentAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo('', CDP_REPO_NAME, environmentRepoBranch)
         }
     }
 

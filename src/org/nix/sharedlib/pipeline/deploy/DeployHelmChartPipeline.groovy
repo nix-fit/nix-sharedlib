@@ -7,7 +7,7 @@ import org.nix.sharedlib.git.GitUtils
  */
 class DeployHelmChartPipeline extends DeployAbstractHelmChartPipeline {
 
-    private final static String HELM_CHART_REPO_PREFIX = 'helm'
+    private final static String HELM_CHART_REPO_PREFIX = 'helm-'
 
     DeployHelmChartPipeline(Script script) {
         super(script)
@@ -17,7 +17,9 @@ class DeployHelmChartPipeline extends DeployAbstractHelmChartPipeline {
     protected void deployStage() {
         stage('Deploy chart') {
             script.dir(artifactAbsoluteRepoPath) {
-                helmUtils.installHelmRelease(chartRepoName, environment, namespace, environmentAbsoluteRepoPath, deployTimeout)
+                // remove repo prefix
+                String releaseName = removeRepoPrefix(chartRepoName, HELM_CHART_REPO_PREFIX)
+                helmUtils.installHelmRelease(releaseName, environment, namespace, environmentAbsoluteRepoPath, deployTimeout)
             }
         }
     }
@@ -25,7 +27,7 @@ class DeployHelmChartPipeline extends DeployAbstractHelmChartPipeline {
     @Override
     protected void downloadArtifactStage() {
         stage('Download artifact') {
-            artifactAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo(HELM_CHART_REPO_PREFIX, chartRepoName, '', chartRepoBranch)
+            artifactAbsoluteRepoPath = gitUtils.cloneSshGitHubRepo('', chartRepoName, chartRepoBranch)
         }
     }
 
