@@ -55,7 +55,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
                 script.string(
                     credentialsId: 'github_token_classic',
                     variable: 'NUGET_GITHUB_PACKAGES_TOKEN'
-                ),
+                )
             ]) {
                 script.dir(projectAbsoluteRepoPath) {
                     script.sh """
