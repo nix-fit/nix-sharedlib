@@ -36,13 +36,15 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
     protected void buildStage() {
         stage('Build .Net library') {
             script.dir(projectAbsoluteRepoPath) {
+                String versionSuffixArg = (gitUtils.isReleaseBranch() || testRelease)
+                    ? "" : "--version-suffix snapshot-${script.env.BUILD_NUMBER}"
                 script.sh """
                     dotnet restore *.sln
                     dotnet build *.sln --configuration Release
                     dotnet pack *.sln \
                         --configuration Release \
                         --no-build \
-                        --version-suffix snapshot-${script.env.BUILD_NUMBER} \
+                        ${versionSuffixArg} \
                         --output nupkgs
                 """
             }
@@ -57,11 +59,14 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
                     variable: 'NUGET_GITHUB_PACKAGES_TOKEN'
                 )
             ]) {
+                String skipDuplicate = (gitUtils.isReleaseBranch() || testRelease)
+                    ? "--skip-duplicate" : ""
                 script.dir(projectAbsoluteRepoPath) {
                     script.sh """
                         dotnet nuget push nupkgs/*.nupkg \
                             --source https://nuget.pkg.github.com/nix-fit/index.json \
-                            --api-key ${script.env['NUGET_GITHUB_PACKAGES_TOKEN']}
+                            --api-key \${NUGET_GITHUB_PACKAGES_TOKEN} \
+                            ${skipDuplicate}
                     """
                 }
             }
