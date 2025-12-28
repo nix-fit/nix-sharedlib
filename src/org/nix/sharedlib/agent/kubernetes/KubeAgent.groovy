@@ -39,7 +39,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     protected final static String BUILD_CONTAINER_IMAGE_NAME =
             'nix-docker.registry.twcstorage.ru/ci/build/common-build:1.1.0000@sha256:744b3dc2ed14b0f5433746500130c59907d83dddc09d81c3f374b69c79d6c858'
     protected final static String BUILD_DOTNET_CONTAINER_IMAGE_NAME =
-            'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0.112001@sha256:61ba72164f3802df1017c2e228ee24fc0f31c0963f8694385ade37e26abc5d95'
+            'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0001@sha256:3b365d7eea398b96a157458cf99b9168e1fdb9cc08ececd43dcbb5b2516b8a75'
     protected final static String JNLP_CONTAINER_IMAGE_NAME =
             'nix-docker.registry.twcstorage.ru/ci/jenkins/inbound-agent:3341.v0766d82b_dec0-1-jdk21@sha256:765a29591c3c85b062e124304bf0ca96e147c8539b8c3fca5f7a2bd4986cb21c'
 
