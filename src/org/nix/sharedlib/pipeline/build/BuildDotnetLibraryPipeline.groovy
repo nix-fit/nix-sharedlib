@@ -37,9 +37,11 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
             script.dir(projectAbsoluteRepoPath) {
                 script.sh """
                     dotnet restore
-                    dotnet build
+                    dotnet build --configuration Release
+                    ls -la
                     dotnet pack src \
                         --configuration Release \
+                        --no-build \
                         -p:VersionSuffix=snapshot-${script.env.BUILD_NUMBER} \
                         --output nupkgs
                 """
