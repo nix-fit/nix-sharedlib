@@ -24,6 +24,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
             agent.nodeWrapper(agentTimeout, args) {
                 checkoutProjectRepoStage()
                 buildStage()
+                publishStage()
             }
         } catch (e) {
             log.error(e.message)
@@ -43,8 +44,26 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
                         --no-build \
                         -p:VersionSuffix=snapshot-${script.env.BUILD_NUMBER} \
                         --output nupkgs
-                    ls -la nupkgs
                 """
+            }
+        }
+    }
+
+    protected void publishStage() {
+        stage('Publish .Net library') {
+            script.withCredentials([
+                script.string(
+                    credentialsId: 'github_token_classic',
+                    variable: 'NUGET_GITHUB_PACKAGES_TOKEN'
+                ),
+            ]) {
+                script.dir(projectAbsoluteRepoPath) {
+                    script.sh """
+                        dotnet nuget push nupkgs/*.nupkg \
+                            --source https://nuget.pkg.github.com/nix-fit/index.json \
+                            --api-key ${script.env[NUGET_GITHUB_PACKAGES_TOKEN]}
+                    """
+                }
             }
         }
     }
