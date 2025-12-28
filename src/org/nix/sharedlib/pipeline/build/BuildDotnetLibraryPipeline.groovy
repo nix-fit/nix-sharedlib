@@ -61,7 +61,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
                     script.sh """
                         dotnet nuget push nupkgs/*.nupkg \
                             --source https://nuget.pkg.github.com/nix-fit/index.json \
-                            --api-key ${script.env[NUGET_GITHUB_PACKAGES_TOKEN]}
+                            --api-key ${script.env['NUGET_GITHUB_PACKAGES_TOKEN']}
                     """
                 }
             }
