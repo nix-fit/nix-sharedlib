@@ -42,7 +42,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
                     dotnet pack *.sln \
                         --configuration Release \
                         --no-build \
-                        -p:VersionSuffix=snapshot-${script.env.BUILD_NUMBER} \
+                        --version-suffix snapshot-${script.env.BUILD_NUMBER} \
                         --output nupkgs
                 """
             }
