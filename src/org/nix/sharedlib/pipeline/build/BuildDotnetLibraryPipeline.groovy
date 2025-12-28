@@ -75,7 +75,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
 
     @Override
     protected void parseArgs(Map args) {
-        log.info('Placeholder for parseArgs')
+        testRelease = args.get('testRelease', testRelease)
     }
 
 }
