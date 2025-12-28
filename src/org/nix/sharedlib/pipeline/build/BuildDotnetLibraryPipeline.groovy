@@ -10,6 +10,10 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
 
     protected boolean testRelease = false
 
+    private final static String NUGET_GITHUB_PACKAGES_URL = 'https://nuget.pkg.github.com/nix-fit/index.json'
+    private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_ID = 'github_token_classic'
+    private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_IVARIABLE = 'NUGET_GITHUB_PACKAGES_TOKEN'
+
     BuildDotnetLibraryPipeline(Script script) {
         super(script)
     }
@@ -55,8 +59,8 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
         stage('Publish .Net library') {
             script.withCredentials([
                 script.string(
-                    credentialsId: 'github_token_classic',
-                    variable: 'NUGET_GITHUB_PACKAGES_TOKEN'
+                    credentialsId: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_ID,
+                    variable: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_IVARIABLE
                 )
             ]) {
                 String skipDuplicate = (gitUtils.isReleaseBranch() || testRelease)
@@ -64,7 +68,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
                 script.dir(projectAbsoluteRepoPath) {
                     script.sh """
                         dotnet nuget push nupkgs/*.nupkg \
-                            --source https://nuget.pkg.github.com/nix-fit/index.json \
+                            --source ${NUGET_GITHUB_PACKAGES_URL} \
                             --api-key \${NUGET_GITHUB_PACKAGES_TOKEN} \
                             ${skipDuplicate}
                     """

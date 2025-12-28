@@ -38,10 +38,10 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
             'nix-docker.registry.twcstorage.ru/ci/deploy/common-deploy:1.1.0000@sha256:099538737425e30282b05ef01579be17300a342fe1c113ebd48b5477c33a6b84'
     protected final static String BUILD_CONTAINER_IMAGE_NAME =
             'nix-docker.registry.twcstorage.ru/ci/build/common-build:1.1.0000@sha256:744b3dc2ed14b0f5433746500130c59907d83dddc09d81c3f374b69c79d6c858'
-    protected final static String BUILD_DOTNET_CONTAINER_IMAGE_NAME =
-            'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0001@sha256:3b365d7eea398b96a157458cf99b9168e1fdb9cc08ececd43dcbb5b2516b8a75'
     protected final static String JNLP_CONTAINER_IMAGE_NAME =
             'nix-docker.registry.twcstorage.ru/ci/jenkins/inbound-agent:3341.v0766d82b_dec0-1-jdk21@sha256:765a29591c3c85b062e124304bf0ca96e147c8539b8c3fca5f7a2bd4986cb21c'
+
+    protected final static String BUILD_DOTNET_AGENT_IMAGE_VERSION_9 = '9'
 
     protected final static String CLOUD_NAME = 'kubernetes'
 
@@ -132,12 +132,14 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
      * get build dotnet container spec
      */
     ContainerTemplate getBuildDotnetContainerSpec(Map args = [:]) {
+        String dotnetVersion = args.get('dotnetVersion', BUILD_DOTNET_AGENT_IMAGE_VERSION_9)
+        String image = getBuildDotnetAgentImage(dotnetVersion)
         return script.containerTemplate(
             args: '',
             alwaysPullImage: false,
             command: DEFAULT_CONTAINER_ENTRYPOINT,
             envVars: [],
-            image: BUILD_DOTNET_CONTAINER_IMAGE_NAME,
+            image: image,
             name: BUILD_CONTAINER_NAME,
             resourceRequestCpu: args.get(CONTAINER_CPU_REQUEST_ARG_NAME, BUILD_CONTAINER_CPU_REQUEST),
             resourceLimitCpu: args.get(CONTAINER_CPU_LIMIT_ARG_NAME, BUILD_CONTAINER_CPU_LIMIT),
@@ -147,6 +149,18 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
             runAsGroup: DEFAULT_CONTAINER_GROUP,
             ttyEnabled: true,
         )
+    }
+
+    /*
+     * get .Net agent image
+     */
+    String getBuildDotnetAgentImage(String dotnetVersion) {
+        switch (dotnetVersion) {
+            case '9':
+                return 'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0001@sha256:3b365d7eea398b96a157458cf99b9168e1fdb9cc08ececd43dcbb5b2516b8a75'
+            default:
+                throw new IllegalArgumentException("Unsupported .Net: ${dotnetVersion}")
+        }
     }
 
     @Override
