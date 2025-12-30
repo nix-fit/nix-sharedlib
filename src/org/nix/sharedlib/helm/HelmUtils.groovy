@@ -45,7 +45,7 @@ class HelmUtils extends AbstractPipeline {
             )
         ]) {
             String helmValuesArgs = "--values ${environmentAbsoluteRepoPath}/environment/${environment}/main.yaml"
-            String helmAppValuesFile = "--values ${environmentAbsoluteRepoPath}/environment/${environment}/${chartRepoName}/main.yaml"
+            String helmAppValuesFile = "${environmentAbsoluteRepoPath}/environment/${environment}/${chartRepoName}/main.yaml"
             if (script.fileExists(helmAppValuesFile)) {
                 log.info("Detected ${chartRepoName}/main.yaml in Kubernetes environment repo. Adding it to helmValuesArgs")
                 helmValuesArgs += " --values ${helmAppValuesFile}"
