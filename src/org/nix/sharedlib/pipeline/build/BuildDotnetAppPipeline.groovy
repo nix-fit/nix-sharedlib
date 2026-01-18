@@ -36,7 +36,7 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
             agent.nodeWrapper(agentTimeout, args) {
                 checkoutProjectRepoStage()
                 buildStage()
-                // buildDockerImageStage()
+                buildDockerImageStage()
             }
         } catch (e) {
             log.error(e.message)
