@@ -18,8 +18,9 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
     private final static String BACKEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME = 'docker-dotnet-template'
 
     private final static String NUGET_GITHUB_PACKAGES_URL = 'https://nuget.pkg.github.com/nix-fit/index.json'
-    private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_ID = 'github_token_classic'
-    private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_IVARIABLE = 'NUGET_GITHUB_PACKAGES_TOKEN'
+    private final static String NUGET_GITHUB_PACKAGES_SECRET_CREDENTIALS_ID = 'github_token_classic_with_username'
+    private final static String NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE = 'GITHUB_USERNAME'
+    private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_VARIABLE = 'GITHUB_TOKEN'
 
     BuildDotnetAppPipeline(Script script) {
         super(script)
@@ -50,11 +51,11 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
     protected void buildStage() {
         stage('Build .Net app') {
             script.withCredentials([
-                script.string(
-                    credentialsId: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_ID,
-                    variable: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_IVARIABLE
-                )
-            ]) {
+                script.usernamePassword(
+                    credentialsId: NUGET_GITHUB_PACKAGES_SECRET_CREDENTIALS_ID,
+                    usernameVariable: NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE,
+                    passwordVariable: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_VARIABLE
+            )]) {
                 script.dir(projectAbsoluteRepoPath) {
                     appVersion = script.sh(
                         script: 'dotnet msbuild *.csproj -nologo -getProperty:Version',
