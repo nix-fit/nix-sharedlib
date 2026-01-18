@@ -44,9 +44,6 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
         }
     }
 
-    /*
-     * build app stage
-     */
     @Override
     protected void buildStage() {
         stage('Build .Net app') {
@@ -56,26 +53,33 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
                     usernameVariable: NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE,
                     passwordVariable: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_VARIABLE
             )]) {
-                script.dir(projectAbsoluteRepoPath) {
-                    appVersion = script.sh(
-                        script: 'dotnet msbuild *.csproj -nologo -getProperty:Version',
-                        returnStdout: true
-                    ).trim()
-                    log.info("Current version: ${appVersion}")
-                    script.sh """
-                        dotnet restore *.csproj
-                        dotnet build *.csproj \
-                            --configuration Release \
-                            --no-restore \
-                            -p:AssemblyName=app \
-                            -p:UseAppHost=true
-                        dotnet publish *.csproj \
-                            --configuration Release \
-                            --no-build \
-                            -p:AssemblyName=app \
-                            -p:UseAppHost=true \
-                            -p:PublishDir=dist
-                    """
+                script.withEnv([
+                    'DOTNET_NOLOGO=true',
+                    'DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1',
+                    'DOTNET_GENERATE_ASPNET_CERTIFICATE=false',
+                    'DOTNET_CLI_TELEMETRY_OPTOUT=1'
+                ]) {
+                    script.dir(projectAbsoluteRepoPath) {
+                        appVersion = script.sh(
+                            script: 'dotnet msbuild *.csproj -getProperty:Version',
+                            returnStdout: true
+                        ).trim()
+                        log.info("Current version: ${appVersion}")
+                        script.sh """
+                            dotnet restore *.csproj
+                            dotnet build *.csproj \
+                                --configuration Release \
+                                --no-restore \
+                                -p:AssemblyName=app \
+                                -p:UseAppHost=true
+                            dotnet publish *.csproj \
+                                --configuration Release \
+                                --no-build \
+                                -p:AssemblyName=app \
+                                -p:UseAppHost=true \
+                                -p:PublishDir=dist
+                        """
+                    }
                 }
             }
         }
