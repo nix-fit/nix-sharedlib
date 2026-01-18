@@ -13,7 +13,7 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
     protected String dotnetDockerImageTemplateBranch = 'main'
     protected boolean testRelease = false
 
-    private final static String BACKEND_REPO_PREFIX = 'back-app'
+    private final static String BACKEND_REPO_PREFIX = 'back-app-'
     private final static String BACKEND_DOCKER_IMAGE_SUB_PATH = 'apps/back'
     private final static String BACKEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME = 'docker-dotnet-template'
 
