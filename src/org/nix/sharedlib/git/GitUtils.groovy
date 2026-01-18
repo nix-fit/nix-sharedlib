@@ -11,6 +11,8 @@ class GitUtils extends AbstractPipeline {
 
     private final static String GITHUB_HTTPS_BASE_ADDRESS = 'https://github.com'
     private final static String GITHUB_SSH_BASE_ADDRESS = 'git@github.com:'
+    private final static String GITHUB_HTTPS_RAW_USER_CONTENT_ADDRESS = 
+        'https://raw.githubusercontent.com'
 
     private final static String GITHUB_PROJECT_NAME = 'nix-fit'
 
@@ -50,6 +52,17 @@ class GitUtils extends AbstractPipeline {
             """
         }
         return absoluteTargetRepoPath
+    }
+
+    /**
+     * download raw GitHub file (public repos)
+     */
+    String getRawGitHubFile(String repoName, String filePath, String branchName = GIT_RELEASE_BRANCH) {
+        String rawGitHubFileUrl =
+            "${GITHUB_HTTPS_RAW_USER_CONTENT_ADDRESS}/${GITHUB_PROJECT_NAME}/${repoName}/${branchName}/${filePath}"
+        log.info("Downloading file: ${rawGitHubFileUrl}"
+        )
+        script.sh "curl -ksLo ${filePath} ${rawGitHubFileUrl}"
     }
 
     /**

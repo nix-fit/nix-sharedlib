@@ -44,7 +44,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
                     ? "" : "--version-suffix snapshot-${script.env.BUILD_NUMBER}"
                 script.sh """
                     dotnet restore *.sln
-                    dotnet build *.sln --configuration Release
+                    dotnet build *.sln --configuration Release --no-restore
                     dotnet pack *.sln \
                         --configuration Release \
                         --no-build \
@@ -55,6 +55,9 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
         }
     }
 
+    /**
+     * publish stage
+     */
     protected void publishStage() {
         stage('Publish .Net library') {
             script.withCredentials([

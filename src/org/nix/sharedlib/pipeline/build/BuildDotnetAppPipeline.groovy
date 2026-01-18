@@ -1,0 +1,103 @@
+package org.nix.sharedlib.pipeline.build
+
+import org.nix.sharedlib.agent.BuildAgentFactory
+import org.nix.sharedlib.git.GitUtils
+
+/**
+ * Build .Net library pipeline
+ */
+class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
+
+    protected String dotnetVersion = ''
+    protected String appVersion = ''
+    protected String dotnetDockerImageTemplateBranch = 'main'
+    protected boolean testRelease = false
+
+    private final static String BACKEND_REPO_PREFIX = 'back-app'
+    private final static String BACKEND_DOCKER_IMAGE_SUB_PATH = 'apps/back'
+    private final static String BACKEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME = 'docker-dotnet-template'
+
+    private final static String NUGET_GITHUB_PACKAGES_URL = 'https://nuget.pkg.github.com/nix-fit/index.json'
+    private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_ID = 'github_token_classic'
+    private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_IVARIABLE = 'NUGET_GITHUB_PACKAGES_TOKEN'
+
+    BuildDotnetAppPipeline(Script script) {
+        super(script)
+    }
+
+    /**
+     * run
+     */
+    void run(Map args = [:]) {
+        try {
+            agent = BuildAgentFactory.getBuildDotnetAgent(script)
+            parseArgs(args)
+            agent.nodeWrapper(agentTimeout, args) {
+                checkoutProjectRepoStage()
+                buildStage()
+                // buildDockerImageStage()
+            }
+        } catch (e) {
+            log.error(e.message)
+            throw e
+        }
+    }
+
+    /*
+     * build app stage
+     */
+    @Override
+    protected void buildStage() {
+        stage('Build .Net app') {
+            script.withCredentials([
+                script.string(
+                    credentialsId: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_ID,
+                    variable: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_IVARIABLE
+                )
+            ]) {
+                script.dir(projectAbsoluteRepoPath) {
+                    appVersion = script.sh(
+                        script: 'dotnet msbuild *.csproj -nologo -getProperty:Version',
+                        returnStdout: true
+                    ).trim()
+                    log.info("Current version: ${appVersion}")
+                    script.sh """
+                        dotnet restore *.csproj
+                        dotnet build *.csproj \
+                            --configuration Release \
+                            --no-restore \
+                            -p:AssemblyName=app \
+                            -p:UseAppHost=true
+                        dotnet publish *.csproj \
+                            --configuration Release \
+                            --no-build \
+                            -p:AssemblyName=app \
+                            -p:UseAppHost=true \
+                            -p:PublishDir=dist
+                    """
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void buildDockerImageStage() {
+        stage('Build Docker image') {
+            script.dir(projectAbsoluteRepoPath) {
+                gitUtils.getRawGitHubFile(BACKEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME, 'Dockerfile', dotnetDockerImageTemplateBranch)
+                String dockerImageName = removeRepoPrefix(projectRepoName, BACKEND_REPO_PREFIX)
+                dockerUtils.buildDockerImage(
+                    dockerImageName, BACKEND_DOCKER_IMAGE_SUB_PATH, appVersion, testRelease
+                )
+            }
+        }
+    }
+
+    @Override
+    protected void parseArgs(Map args) {
+        dotnetVersion = args.get('dotnetVersion', dotnetVersion)
+        dotnetDockerImageTemplateBranch = args.get('dotnetDockerImageTemplateBranch', dotnetDockerImageTemplateBranch)
+        testRelease = args.get('testRelease', testRelease)
+    }
+
+}
