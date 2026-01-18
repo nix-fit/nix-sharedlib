@@ -62,7 +62,7 @@ class GitUtils extends AbstractPipeline {
             "${GITHUB_HTTPS_RAW_USER_CONTENT_ADDRESS}/${GITHUB_PROJECT_NAME}/${repoName}/${branchName}/${filePath}"
         log.info("Downloading file: ${rawGitHubFileUrl}"
         )
-        script.sh "curl -ksLo ${filePath} ${rawGitHubFileUrl}"
+        script.sh "curl --fail-with-body -ksLo ${filePath} ${rawGitHubFileUrl}"
     }
 
     /**
