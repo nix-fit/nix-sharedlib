@@ -203,6 +203,12 @@ spec:
           type: Unconfined
         appArmorProfile:
           type: Unconfined
+        capabilities:
+          drop:
+            - ALL
+          add:
+            - SETUID
+            - SETGID
       volumeMounts:
         - name: tmp
           mountPath: /tmp
