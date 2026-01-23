@@ -51,9 +51,4 @@ abstract class BuildAbstractAppPipeline extends AbstractPipeline {
      */
     protected abstract void buildStage()
 
-    /**
-     * build Docker image stage
-     */
-    protected abstract void buildDockerImageStage()
-
 }

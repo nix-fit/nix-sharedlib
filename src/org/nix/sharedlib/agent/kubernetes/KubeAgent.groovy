@@ -35,9 +35,9 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     public final static String CONTAINER_MEMORY_LIMIT_ARG_NAME = 'memLimit'
 
     protected final static String DEPLOY_CONTAINER_IMAGE_NAME =
-            'nix-docker.registry.twcstorage.ru/ci/deploy/common-deploy:1.1.0000@sha256:099538737425e30282b05ef01579be17300a342fe1c113ebd48b5477c33a6b84'
+            'nix-docker.registry.twcstorage.ru/ci/deploy/common-deploy:1.2.0000@sha256:7dcc3001b4790cf4f689b905f4305eb1eaf15100fb0a6bb250b51ab384c6f896'
     protected final static String BUILD_CONTAINER_IMAGE_NAME =
-            'nix-docker.registry.twcstorage.ru/ci/build/common-build:1.1.0000@sha256:744b3dc2ed14b0f5433746500130c59907d83dddc09d81c3f374b69c79d6c858'
+            'nix-docker.registry.twcstorage.ru/ci/build/common-build:1.3.0000-snapshot@sha256:b73b4cdb063dcb4d8e6e754c5f6f2dc8234ece081b3442f93fcf7dffce08f27b'
     protected final static String JNLP_CONTAINER_IMAGE_NAME =
             'nix-docker.registry.twcstorage.ru/ci/jenkins/inbound-agent:3341.v0766d82b_dec0-1-jdk21@sha256:765a29591c3c85b062e124304bf0ca96e147c8539b8c3fca5f7a2bd4986cb21c'
 
@@ -113,8 +113,8 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     ContainerTemplate getBuildContainerSpec() {
         return script.containerTemplate(
             args: '',
-            alwaysPullImage: false,
-            command: DEFAULT_CONTAINER_ENTRYPOINT,
+            alwaysPullImage: true,
+            command: buildkitEntrypoint,
             envVars: [],
             image: BUILD_CONTAINER_IMAGE_NAME,
             name: BUILD_CONTAINER_NAME,
@@ -133,7 +133,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
      */
     ContainerTemplate getBuildDotnetContainerSpec(Map args = [:]) {
         String dotnetVersion = args.get('dotnetVersion', BUILD_DOTNET_AGENT_IMAGE_VERSION_9)
-        String image = getBuildDotnetAgentImage(dotnetVersion)
+        String image = buildDotnetAgentImage(dotnetVersion)
         return script.containerTemplate(
             args: '',
             alwaysPullImage: false,
@@ -151,16 +151,46 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
         )
     }
 
-    /*
+    /**
      * get .Net agent image
      */
     String getBuildDotnetAgentImage(String dotnetVersion) {
         switch (dotnetVersion) {
             case '9':
-                return 'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0001@sha256:3b365d7eea398b96a157458cf99b9168e1fdb9cc08ececd43dcbb5b2516b8a75'
+                return 'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0001@sha256:ba45f91b6b7249370d9294a11aba2ef85d81ce09e557eef0eecb6d5b11969055'
             default:
                 throw new IllegalArgumentException("Unsupported .Net: ${dotnetVersion}")
         }
+    }
+
+    /**
+    * get buildkit entrypoint
+    */
+    String getBuildkitEntrypoint() {
+        List opts = [
+            '--oci-worker=true',
+            '--oci-worker-no-process-sandbox',
+            '--oci-worker-binary=crun',
+            '--containerd-worker=false',
+            '--root=/home/jenkins/agent/buildkit',
+            '--addr=unix:///home/jenkins/agent/buildkit/buildkitd.sock',
+            '--otel-socket-path=/home/jenkins/agent/buildkit/otel-grpc.sock',
+        ]
+        return "rootlesskit buildkitd ${opts.join(' ')}"
+    }
+
+    String getBuildContainerSecuritySpec () {
+        return '''\
+spec:
+  containers:
+    - name: build
+      securityContext:
+        allowPrivilegeEscalation: true
+        seccompProfile:
+          type: Unconfined
+        appArmorProfile:
+          type: Unconfined
+'''
     }
 
     @Override

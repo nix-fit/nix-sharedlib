@@ -30,7 +30,7 @@ class BuildDockerImagePipeline extends BuildAbstractAppPipeline {
             parseArgs(args)
             agent.nodeWrapper(agentTimeout, args) {
                 checkoutProjectRepoStage()
-                buildDockerImageStage()
+                buildStage()
             }
         } catch (e) {
             log.error(e.message)
@@ -38,8 +38,11 @@ class BuildDockerImagePipeline extends BuildAbstractAppPipeline {
         }
     }
 
+    /**
+     * build Docker image stage
+     */
     @Override
-    protected void buildDockerImageStage() {
+    protected void buildStage() {
         stage('Build Docker image') {
             script.dir(projectAbsoluteRepoPath) {
                 String dockerImageName = removeRepoPrefix(projectRepoName, DOCKER_REPO_PREFIX)

@@ -36,7 +36,6 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
             agent.nodeWrapper(agentTimeout, args) {
                 checkoutProjectRepoStage()
                 buildStage()
-                buildDockerImageStage()
             }
         } catch (e) {
             log.error(e.message)
@@ -83,10 +82,6 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
                 }
             }
         }
-    }
-
-    @Override
-    protected void buildDockerImageStage() {
         stage('Build Docker image') {
             script.dir(projectAbsoluteRepoPath) {
                 gitUtils.getRawGitHubFile(BACKEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME, 'Dockerfile', dotnetDockerImageTemplateBranch)

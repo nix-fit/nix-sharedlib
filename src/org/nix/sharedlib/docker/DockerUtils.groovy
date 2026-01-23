@@ -195,7 +195,7 @@ class DockerUtils extends AbstractPipeline {
         log.info("Image tag: ${dockerImageTag}")
         withDockerRegistryAuth(DOCKER_REGISTRY_ADDRESS, DOCKER_REGISTRY_CREDENTIALS_ID) {
             script.withEnv([
-                "BUILDKIT_HOST=${BUILDKIT_HOST}"
+                // "BUILDKIT_HOST=${BUILDKIT_HOST}"
             ]) {
                 script.sh """
                     buildctl build \
