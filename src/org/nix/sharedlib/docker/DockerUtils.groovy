@@ -196,6 +196,7 @@ class DockerUtils extends AbstractPipeline {
         withDockerRegistryAuth(DOCKER_REGISTRY_ADDRESS, DOCKER_REGISTRY_CREDENTIALS_ID) {
             script.withEnv([
                 // "BUILDKIT_HOST=${BUILDKIT_HOST}"
+                "TMPDIR=/tmp"
             ]) {
                 script.sh """
                     buildctl build \
