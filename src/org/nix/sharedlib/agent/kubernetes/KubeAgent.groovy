@@ -112,9 +112,9 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
      */
     ContainerTemplate getBuildContainerSpec() {
         return script.containerTemplate(
-            args: '',
+            args: getBuildkitArgs(true),
             alwaysPullImage: true,
-            command: buildkitEntrypoint,
+            command: getBuildkitEntrypoint(true),
             envVars: [],
             image: BUILD_CONTAINER_IMAGE_NAME,
             name: BUILD_CONTAINER_NAME,
@@ -164,19 +164,27 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     }
 
     /**
-    * get buildkit entrypoint
-    */
-    String getBuildkitEntrypoint() {
-        List opts = [
-            '--oci-worker=true',
-            '--oci-worker-no-process-sandbox',
-            '--oci-worker-binary=crun',
-            '--containerd-worker=false',
-            '--root=/home/jenkins/agent/buildkit',
-            '--addr=unix:///home/jenkins/agent/buildkit/buildkitd.sock',
-            '--otel-socket-path=/home/jenkins/agent/buildkit/otel-grpc.sock',
-        ]
-        return "rootlesskit --subid-source static buildkitd ${opts.join(' ')}"
+     * get buildkit entrypoint
+     */
+    String getBuildkitEntrypoint(boolean useBuildkit) {
+        return useBuildkit ?
+            'rootlesskit --subid-source static buildkitd' :
+            DEFAULT_CONTAINER_ENTRYPOINT
+    }
+
+    /**
+     * get buildkit args
+     */
+    String getBuildkitArgs(boolean useBuildkit) {
+        return useBuildkit ?
+            '--oci-worker=true' +
+            '--oci-worker-no-process-sandbox' +
+            '--oci-worker-binary=crun' +
+            '--containerd-worker=false' +
+            '--root=/home/jenkins/agent/buildkit' +
+            '--addr=unix:///home/jenkins/agent/buildkit/buildkitd.sock' +
+            '--otel-socket-path=/home/jenkins/agent/buildkit/otel-grpc.sock' :
+            ''
     }
 
     String getBuildContainerSecuritySpec () {
