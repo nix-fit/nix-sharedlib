@@ -192,6 +192,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
 spec:
   containers:
     - name: build
+      readOnlyRootFilesystem: true
       securityContext:
         seccompProfile:
           type: Unconfined
