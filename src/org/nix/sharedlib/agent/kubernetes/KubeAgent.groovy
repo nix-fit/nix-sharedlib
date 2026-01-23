@@ -190,30 +190,49 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
             ''
     }
 
-    String getBuildContainerSecuritySpec () {
-        return '''\
-spec:
-  containers:
-    - name: build
-      securityContext:
-        allowPrivilegeEscalation: true
-        readOnlyRootFilesystem: true
-        runAsNonRoot: true
-        seccompProfile:
-          type: Unconfined
-        appArmorProfile:
-          type: Unconfined
-        capabilities:
-          drop:
-            - ALL
-      volumeMounts:
-        - name: tmp
-          mountPath: /tmp
-  volumes:
-    - name: tmp
-      emptyDir:
-        medium: ""
-'''
+    /**
+     * get build container security spec
+     */
+    String getBuildContainerSecuritySpec(boolean useBuildkit) {
+        Map defaultSecurityContext = [
+            allowPrivilegeEscalation: false,
+            runAsNonRoot: true,
+            readOnlyRootFilesystem: true,
+            capabilities: [
+                drop: ['ALL']
+            ],
+            seccompProfile: [type: 'RuntimeDefault'],
+        ]
+        Map buildkitSecurityContext = defaultSecurityContext + [
+            allowPrivilegeEscalation: true,
+            seccompProfile: [type: 'Unconfined'],
+            appArmorProfile: [type: 'Unconfined'],
+            capabilities: [
+                drop: ['ALL'],
+                add: ['SETUID', 'SETGID']
+            ]
+        ]
+        Map podSpec = [
+            spec: [
+                containers: [
+                    [
+                        name: BUILD_CONTAINER_NAME,
+                        securityContext: useBuildkit ? buildkitSecurityContext : defaultSecurityContext,
+                        volumeMounts: useBuildkit ? [
+                            [name: 'tmp', mountPath: '/tmp']
+                        ] : []
+                    ],
+                    [
+                        name: JNLP_CONTAINER_NAME,
+                        securityContext: defaultSecurityContext
+                    ]
+                ],
+                volumes: useBuildkit ? [
+                    [name: 'tmp', emptyDir: [medium: '']]
+                ] : []
+            ]
+        ]
+        return new groovy.yaml.YamlBuilder(podSpec).toString()
     }
 
     @Override
