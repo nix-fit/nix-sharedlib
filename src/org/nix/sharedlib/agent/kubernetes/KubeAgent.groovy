@@ -232,7 +232,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
                 ] : []
             ]
         ]
-        return new groovy.yaml.YamlBuilder(podSpec).toString()
+        return new script.writeYaml(returnText: true, data: podSpec)
     }
 
     @Override
