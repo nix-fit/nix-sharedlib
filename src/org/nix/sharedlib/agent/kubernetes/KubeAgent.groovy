@@ -168,7 +168,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
      */
     String getBuildkitEntrypoint(boolean useBuildkit) {
         return useBuildkit ?
-            'rootlesskit buildkitd' :
+            'rootlesskit --subid-source static buildkitd' :
             DEFAULT_CONTAINER_ENTRYPOINT
     }
 
@@ -177,12 +177,12 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
      */
     String getBuildkitArgs(boolean useBuildkit) {
         return useBuildkit ?
-            '--oci-worker=true' +
-            '--oci-worker-no-process-sandbox' +
-            '--oci-worker-binary=crun' +
-            '--containerd-worker=false' +
-            '--root=/home/jenkins/agent/buildkit' +
-            '--addr=unix:///home/jenkins/agent/buildkit/buildkitd.sock' +
+            '--oci-worker=true ' +
+            '--oci-worker-no-process-sandbox ' +
+            '--oci-worker-binary=crun ' +
+            '--containerd-worker=false ' +
+            '--root=/home/jenkins/agent/buildkit ' +
+            '--addr=unix:///home/jenkins/agent/buildkit/buildkitd.sock ' +
             '--otel-socket-path=/home/jenkins/agent/buildkit/otel-grpc.sock' :
             ''
     }
