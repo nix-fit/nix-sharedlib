@@ -193,6 +193,7 @@ spec:
   containers:
     - name: build
       securityContext:
+        privileged: false
         seccompProfile:
           type: Unconfined
         appArmorProfile:

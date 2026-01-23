@@ -13,6 +13,7 @@ class KubeBuildAgent extends KubeAgent {
     void nodeWrapper(int timeout, Map args = [:], Closure body) {
         script.podTemplate(
             cloud: CLOUD_NAME,
+            yaml: buildContainerSecuritySpec,
             containers: [
                 jnlpContainerSpec,
                 buildContainerSpec,
