@@ -176,7 +176,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
             '--addr=unix:///home/jenkins/agent/buildkit/buildkitd.sock',
             '--otel-socket-path=/home/jenkins/agent/buildkit/otel-grpc.sock',
         ]
-        return "rootlesskit buildkitd ${opts.join(' ')}"
+        return "rootlesskit --subid-source static buildkitd ${opts.join(' ')}"
     }
 
     String getBuildContainerSecuritySpec () {
@@ -185,7 +185,6 @@ spec:
   containers:
     - name: build
       securityContext:
-        // allowPrivilegeEscalation: true
         seccompProfile:
           type: Unconfined
         appArmorProfile:
