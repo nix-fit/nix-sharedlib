@@ -168,7 +168,10 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
      */
     String getBuildkitEntrypoint(boolean useBuildkit) {
         return useBuildkit ?
-            'rootlesskit --subid-source static buildkitd' :
+            'rootlesskit ' +
+            '--state-dir=/home/jenkins/agent/.rootlesskit ' +
+            '--subid-source=static ' +
+            'buildkitd' :
             DEFAULT_CONTAINER_ENTRYPOINT
     }
 
