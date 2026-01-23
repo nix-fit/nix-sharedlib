@@ -201,6 +201,12 @@ spec:
           type: Unconfined
         appArmorProfile:
           type: Unconfined
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+  volumes:
+    - name: tmp
+      emptyDir: {}
 '''
     }
 
