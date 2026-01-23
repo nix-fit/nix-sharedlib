@@ -185,7 +185,7 @@ spec:
   containers:
     - name: build
       securityContext:
-        allowPrivilegeEscalation: true
+        // allowPrivilegeEscalation: true
         seccompProfile:
           type: Unconfined
         appArmorProfile:
