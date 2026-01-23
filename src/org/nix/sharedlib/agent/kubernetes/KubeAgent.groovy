@@ -2,6 +2,8 @@ package org.nix.sharedlib.agent.kubernetes
 
 import org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate
 
+import org.yaml.snakeyaml.Yaml
+
 import org.nix.sharedlib.agent.AgentRunner
 import org.nix.sharedlib.pipeline.AbstractPipeline
 
@@ -232,7 +234,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
                 ] : []
             ]
         ]
-        return script.writeYaml(returnText: true, data: podSpec)
+        return new Yaml().dump(podSpec)
     }
 
     @Override
