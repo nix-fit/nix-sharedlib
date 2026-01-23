@@ -196,7 +196,7 @@ spec:
   containers:
     - name: build
       securityContext:
-        allowPrivilegeEscalation: false
+        allowPrivilegeEscalation: true
         readOnlyRootFilesystem: true
         runAsNonRoot: true
         seccompProfile:
