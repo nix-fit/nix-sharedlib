@@ -196,13 +196,9 @@ spec:
   containers:
     - name: build
       securityContext:
+        allowPrivilegeEscalation: false
         readOnlyRootFilesystem: true
-        capabilities:
-          drop:
-            - ALL
-          set:
-            - SETUID
-            - SETGID
+        runAsNonRoot: true
         seccompProfile:
           type: Unconfined
         appArmorProfile:
