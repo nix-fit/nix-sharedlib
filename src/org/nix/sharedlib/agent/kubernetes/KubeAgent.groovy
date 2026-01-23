@@ -206,9 +206,6 @@ spec:
         capabilities:
           drop:
             - ALL
-          add:
-            - SETUID
-            - SETGID
       volumeMounts:
         - name: tmp
           mountPath: /tmp
