@@ -197,6 +197,9 @@ spec:
     - name: build
       securityContext:
         readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
         seccompProfile:
           type: Unconfined
         appArmorProfile:
