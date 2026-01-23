@@ -197,9 +197,13 @@ spec:
     - name: build
       securityContext:
         readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
         capabilities:
           drop:
             - ALL
+          set:
+            - SETUID
+            - SETGID
         seccompProfile:
           type: Unconfined
         appArmorProfile:
