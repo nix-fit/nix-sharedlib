@@ -221,7 +221,8 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
                         name: BUILD_CONTAINER_NAME,
                         securityContext: useBuildkit ? buildkitSecurityContext : defaultSecurityContext,
                         volumeMounts: useBuildkit ? [
-                            [name: 'tmp', mountPath: '/tmp']
+                            [name: 'tmp', mountPath: '/tmp'],
+                            [name: 'xdg', mountPath: '/home/jenkins/agent/.local/xdg']
                         ] : []
                     ],
                     [
@@ -230,7 +231,8 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
                     ]
                 ],
                 volumes: useBuildkit ? [
-                    [name: 'tmp', emptyDir: [medium: '']]
+                    [name: 'tmp', emptyDir: [medium: '']],
+                    [name: 'xdg', emptyDir: [medium: '']]
                 ] : []
             ]
         ]
