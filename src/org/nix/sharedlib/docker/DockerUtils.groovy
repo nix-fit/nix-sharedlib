@@ -222,7 +222,7 @@ class DockerUtils extends AbstractPipeline {
                         --frontend dockerfile.v0 \
                         --local context=. \
                         --local dockerfile=. \
-                        --opt platform=linux/amd64,linux/arm64 \
+                        --opt platform=linux/amd64 \
                         ${buildkitCacheArgs} \
                         --output type=image,name=${dockerImageFullPath},push=true
                 """
