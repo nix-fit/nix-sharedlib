@@ -115,7 +115,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     ContainerTemplate getBuildContainerSpec() {
         return script.containerTemplate(
             args: getBuildkitArgs(true),
-            alwaysPullImage: true,
+            alwaysPullImage: false,
             command: getBuildkitEntrypoint(true),
             envVars: [],
             image: BUILD_CONTAINER_IMAGE_NAME,
