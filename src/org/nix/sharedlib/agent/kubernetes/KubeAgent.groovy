@@ -22,9 +22,9 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     public final static String DEPLOY_CONTAINER_MEMORY_LIMIT = '768Mi'
 
     public final static String BUILD_CONTAINER_CPU_REQUEST = '250m'
-    public final static String BUILD_CONTAINER_CPU_LIMIT = '750m'
+    public final static String BUILD_CONTAINER_CPU_LIMIT = '1'
     public final static String BUILD_CONTAINER_MEMORY_REQUEST = '256Mi'
-    public final static String BUILD_CONTAINER_MEMORY_LIMIT = '768Mi'
+    public final static String BUILD_CONTAINER_MEMORY_LIMIT = '1Gi'
 
     public final static String JNLP_CONTAINER_CPU_REQUEST = '250m'
     public final static String JNLP_CONTAINER_CPU_LIMIT = '250'
