@@ -71,23 +71,23 @@ class DockerUtils extends AbstractPipeline {
         List dockerImageTags = []
         String latestImageTag = ''
         String skopeoResult = ''
+        String versionRegex = buildVersionMatchRegex(version)
 
         withDockerRegistryAuth(DOCKER_REGISTRY_ADDRESS, DOCKER_REGISTRY_CREDENTIALS_ID) {
             skopeoResult = script.sh(
                 script: """
                     skopeo list-tags --authfile "\${DOCKER_CONFIG}/config.json" \
                         docker://${DOCKER_REGISTRY_ADDRESS}/${dockerImageSubPath}/${dockerImageName} | \
-                    jq -r '.Tags[]' | \
-                    grep -v cache | \
-                    grep -v snapshot | \
-                    grep ${version} | \
-                    sort -n
+                    jq -r '.Tags[]'
                 """,
                 returnStdout: true
             ).trim()
         }
 
-        dockerImageTags = skopeoResult.readLines().findAll { it }
+        dockerImageTags = skopeoResult.readLines()
+            .findAll { it }
+            .findAll { !it.contains('cache') && !it.contains('snapshot') }
+            .findAll { it ==~ versionRegex }
         log.info("Overall image tags (matched current version): ${dockerImageTags}")
 
         if (dockerImageTags) {
@@ -102,9 +102,9 @@ class DockerUtils extends AbstractPipeline {
     /**
      * get new Docker image tag
      */
-    String getNewDockerImageTag(String dockerImageName, String dockerImageSubPath, String baseVersion) {
+    String getNewDockerImageTag(String dockerImageName, String dockerImageSubPath, String version, String baseVersion) {
         String newImageTag = ''
-        String latestImageTag = getlatestDockerImageTagFromRegistry(dockerImageName, dockerImageSubPath, baseVersion)
+        String latestImageTag = getlatestDockerImageTagFromRegistry(dockerImageName, dockerImageSubPath, version)
         if (latestImageTag) {
             log.info("Image tag ${latestImageTag} already exists, calling increment function")
             newImageTag = incrementVersion(latestImageTag)
@@ -124,6 +124,26 @@ class DockerUtils extends AbstractPipeline {
             throw new IllegalArgumentException('Invalid version format. Acceptable: X.Y.Z, X.Y.Z-suffix, X.Y or X.Y-suffix')
         }
         return matcher
+    }
+
+
+    /**
+     * build regex matching all tags for a version
+     */
+    private static String buildVersionMatchRegex(String version) {
+        Matcher matcher = validateVersion(version)
+
+        String major = matcher.group(VERSION_MAJOR_GROUP)
+        String minor = matcher.group(VERSION_MINOR_GROUP)
+        String patch = matcher.group(VERSION_PATCH_GROUP)
+        String suffix = matcher.group(VERSION_SUFFIX_GROUP)
+
+        String suffixRegex = suffix ? "-${Pattern.quote(suffix)}" : ''
+        if (patch) {
+            return "${major}\\.${minor}\\.${patch}\\d{3}${suffixRegex}"
+        }
+
+        return "${major}\\.${minor}\\d{3}${suffixRegex}"
     }
 
     /**
@@ -185,7 +205,7 @@ class DockerUtils extends AbstractPipeline {
         log.info("Base version: ${baseVersion}")
         boolean isReleaseBranch = gitUtils.isReleaseBranch() || testRelease
         String dockerImageTag = isReleaseBranch
-            ? getNewDockerImageTag(dockerImageName, dockerImageSubPath, baseVersion)
+            ? getNewDockerImageTag(dockerImageName, dockerImageSubPath, version, baseVersion)
             : baseVersion + "-snapshot"
         String dockerImageFullPath = "${DOCKER_REGISTRY_ADDRESS}/${dockerImageSubPath}/${dockerImageName}:${dockerImageTag}"
         String buildkitCacheArgs = isReleaseBranch ?
