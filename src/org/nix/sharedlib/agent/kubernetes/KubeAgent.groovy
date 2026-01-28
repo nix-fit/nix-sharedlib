@@ -159,7 +159,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
     String getBuildDotnetAgentImage(String dotnetVersion) {
         switch (dotnetVersion) {
             case '9':
-                return 'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0001@sha256:ba45f91b6b7249370d9294a11aba2ef85d81ce09e557eef0eecb6d5b11969055'
+                return 'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0000-snapshot@sha256:91b1d330271a53d6bdde1378fd10448108f4b6ea023d2defbc683682ef3cc2d8'
             default:
                 throw new IllegalArgumentException("Unsupported .Net: ${dotnetVersion}")
         }

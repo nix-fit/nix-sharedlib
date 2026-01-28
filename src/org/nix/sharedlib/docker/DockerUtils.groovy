@@ -199,8 +199,8 @@ class DockerUtils extends AbstractPipeline {
     /**
      * build Docker image
      */
-    void buildDockerImage(String dockerImageName, String dockerImageSubPath, String version, boolean testRelease) {
-        // validate and format version X.Y.Z000 or X.Y.Z000-suffix
+    void buildDockerImage(String dockerImageName, String dockerImageSubPath, String version, boolean testRelease, Map opts = [:]) {
+        // validate and format version
         String baseVersion = formatVersion(version)
         log.info("Base version: ${baseVersion}")
         boolean isReleaseBranch = gitUtils.isReleaseBranch() || testRelease
@@ -212,6 +212,8 @@ class DockerUtils extends AbstractPipeline {
             '' :
             "--export-cache type=registry,ref=${dockerImageFullPath}-${dockerBuildCacheSuffix},mode=max,image-manifest=true " +
             "--import-cache type=registry,ref=${dockerImageFullPath}-${dockerBuildCacheSuffix}"
+        String secretsArgs = opts.secrets?.collect { "--secret ${it}" }?.join(' ') ?: ''
+        String buildArgs = opts.buildArgs?.collect { "--opt build-arg:${it}" }?.join(' ') ?: ''
         log.info("Image tag: ${dockerImageTag}")
         withDockerRegistryAuth(DOCKER_REGISTRY_ADDRESS, DOCKER_REGISTRY_CREDENTIALS_ID) {
             script.withEnv([
@@ -224,6 +226,8 @@ class DockerUtils extends AbstractPipeline {
                         --local dockerfile=. \
                         --opt platform=linux/amd64,linux/arm64 \
                         ${buildkitCacheArgs} \
+                        ${secretsArgs} \
+                        ${buildArgs} \
                         --output type=image,name=${dockerImageFullPath},push=true
                 """
             }
