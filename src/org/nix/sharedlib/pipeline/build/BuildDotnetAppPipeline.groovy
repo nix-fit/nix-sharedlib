@@ -52,27 +52,34 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
                     usernameVariable: NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE,
                     passwordVariable: NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_VARIABLE
             )]) {
-                script.dir(projectAbsoluteRepoPath) {
-                    appVersion = script.sh(
-                        script: 'dotnet msbuild *.csproj -getProperty:Version',
-                        returnStdout: true
-                    ).trim()
-                    log.info("Current version: ${appVersion}")
-                    gitUtils.getRawGitHubFile(BACKEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME, 'Dockerfile', dotnetDockerImageTemplateBranch)
-                    String dockerImageName = removeRepoPrefix(projectRepoName, BACKEND_REPO_PREFIX)
-                    dockerUtils.buildDockerImage(
-                        dockerImageName,
-                        BACKEND_DOCKER_IMAGE_SUB_PATH,
-                        appVersion,
-                        testRelease,
-                        [
-                            secrets: ["id=github_token,env=${NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_VARIABLE}"],
-                            buildArgs: [
-                                "${NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE}=\${${NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE}}",
-                                "NUGET_GITHUB_PACKAGES_URL=${NUGET_GITHUB_PACKAGES_URL}"
+                script.withEnv([
+                    'DOTNET_NOLOGO=true',
+                    'DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1',
+                    'DOTNET_GENERATE_ASPNET_CERTIFICATE=false',
+                    'DOTNET_CLI_TELEMETRY_OPTOUT=1'
+                ]) {
+                    script.dir(projectAbsoluteRepoPath) {
+                        appVersion = script.sh(
+                            script: 'dotnet msbuild *.csproj -getProperty:Version',
+                            returnStdout: true
+                        ).trim()
+                        log.info("Current version: ${appVersion}")
+                        gitUtils.getRawGitHubFile(BACKEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME, 'Dockerfile', dotnetDockerImageTemplateBranch)
+                        String dockerImageName = removeRepoPrefix(projectRepoName, BACKEND_REPO_PREFIX)
+                        dockerUtils.buildDockerImage(
+                            dockerImageName,
+                            BACKEND_DOCKER_IMAGE_SUB_PATH,
+                            appVersion,
+                            testRelease,
+                            [
+                                secrets: ["id=github_token,env=${NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_VARIABLE}"],
+                                buildArgs: [
+                                    "${NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE}=\${${NUGET_GITHUB_PACKAGES_USER_CREDENTIALS_VARIABLE}}",
+                                    "NUGET_GITHUB_PACKAGES_URL=${NUGET_GITHUB_PACKAGES_URL}"
+                                ]
                             ]
-                        ]
-                    )
+                        )
+                    }
                 }
             }
         }
