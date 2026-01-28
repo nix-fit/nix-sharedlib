@@ -135,7 +135,7 @@ class KubeAgent extends AbstractPipeline implements AgentRunner {
      */
     ContainerTemplate getBuildDotnetContainerSpec(Map args = [:]) {
         String dotnetVersion = args.get('dotnetVersion', BUILD_DOTNET_AGENT_IMAGE_VERSION_9)
-        String image = buildDotnetAgentImage(dotnetVersion)
+        String image = getBuildDotnetAgentImage(dotnetVersion)
         return script.containerTemplate(
             args: '',
             alwaysPullImage: false,
