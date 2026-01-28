@@ -13,9 +13,10 @@ class KubeBuildDotnetAgent extends KubeAgent {
     void nodeWrapper(int timeout, Map args = [:], Closure body) {
         script.podTemplate(
             cloud: CLOUD_NAME,
+            yaml: getBuildContainerSecuritySpec(true),
             containers: [
-                jnlpContainerSpec,
                 getBuildDotnetContainerSpec(args),
+                jnlpContainerSpec,
             ]
         ) {
             script.node(script.env.POD_LABEL) {
