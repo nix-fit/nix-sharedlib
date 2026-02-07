@@ -7,7 +7,7 @@ import org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate
  */
 class KubeBuildDotnetAgent extends KubeAgent {
 
-    protected final static String BUILD_DOTNET_AGENT_IMAGE_VERSION_9 = '9'
+    protected final static String BUILD_DOTNET_AGENT_IMAGE_VERSION = '9'
 
     KubeBuildDotnetAgent(Script script) {
         super(script)
@@ -40,7 +40,7 @@ class KubeBuildDotnetAgent extends KubeAgent {
      * get build .Net container spec
      */
     ContainerTemplate getBuildDotnetContainerSpec(Map args = [:], boolean useBuildkit = false) {
-        String dotnetVersion = args.get('dotnetVersion', BUILD_DOTNET_AGENT_IMAGE_VERSION_9)
+        String dotnetVersion = args.get('dotnetVersion', BUILD_DOTNET_AGENT_IMAGE_VERSION)
         String image = getBuildDotnetAgentImage(dotnetVersion)
         return script.containerTemplate(
             args: getBuildkitArgs(useBuildkit),
@@ -68,7 +68,7 @@ class KubeBuildDotnetAgent extends KubeAgent {
                 return 'nix-docker.registry.twcstorage.ru/ci/build/dotnet-build:9.0002' +
                     '@sha256:adb707390c56a55ccdc7916fbd8b357b70e065883dda0db34dc81ec9c4b0b732'
             default:
-                throw new IllegalArgumentException("Unsupported .Net: ${dotnetVersion}")
+                throw new IllegalArgumentException("Unsupported .Net version: ${dotnetVersion}")
         }
     }
 

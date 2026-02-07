@@ -18,7 +18,7 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
 
     protected String dotnetVersion = ''
     protected String appVersion = ''
-    protected String dotnetDockerImageTemplateBranch = 'main'
+    protected String dotnetDockerImageTemplateBranch = ''
     protected String platforms = 'linux/amd64'
     protected boolean testRelease = false
 
@@ -95,7 +95,7 @@ class BuildDotnetAppPipeline extends BuildAbstractAppPipeline {
     @Override
     protected void parseArgs(Map args) {
         dotnetVersion = args.get('dotnetVersion', dotnetVersion)
-        dotnetDockerImageTemplateBranch = args.get('dotnetDockerImageTemplateBranch', dotnetDockerImageTemplateBranch)
+        dotnetDockerImageTemplateBranch = args.get('dotnetDockerImageTemplateBranch', dotnetVersion)
         platforms = args.get('platforms', platforms)
         testRelease = args.get('testRelease', testRelease)
     }

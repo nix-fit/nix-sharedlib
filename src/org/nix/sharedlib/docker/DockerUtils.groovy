@@ -134,7 +134,7 @@ class DockerUtils extends AbstractPipeline {
         String baseVersion = formatVersion(version)
         log.info("Base version: ${baseVersion}")
         /* groovylint-disable-next-line UnnecessaryGetter */
-        boolean isRelease = gitUtils.isReleaseBranch || testRelease
+        boolean isRelease = gitUtils.isReleaseBranch() || testRelease
         String dockerImageTag = isRelease
             ? getNewDockerImageTag(dockerImageName, dockerImageSubPath, version, baseVersion)
             : baseVersion + '-snapshot'
