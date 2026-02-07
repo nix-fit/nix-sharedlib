@@ -11,6 +11,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
     private final static String NUGET_GITHUB_PACKAGES_SECRET_CREDENTIALS_ID = 'github_token_classic'
     private final static String NUGET_GITHUB_PACKAGES_TOKEN_CREDENTIALS_VARIABLE = 'NUGET_GITHUB_PACKAGES_TOKEN'
 
+    protected String dotnetVersion = ''
     protected boolean testRelease = false
 
     BuildDotnetLibraryPipeline(Script script) {
@@ -89,6 +90,7 @@ class BuildDotnetLibraryPipeline extends BuildAbstractAppPipeline {
 
     @Override
     protected void parseArgs(Map args) {
+        dotnetVersion = args.get('dotnetVersion', dotnetVersion)
         testRelease = args.get('testRelease', testRelease)
     }
 
