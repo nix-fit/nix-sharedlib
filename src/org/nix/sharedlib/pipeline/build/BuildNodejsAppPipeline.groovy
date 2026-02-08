@@ -52,7 +52,7 @@ class BuildNodejsAppPipeline extends BuildAbstractAppPipeline {
                     appVersion = script.sh(
                         script: 'npm pkg get version',
                         returnStdout: true
-                    ).trim()
+                    ).trim().replaceAll('"', '')
                     log.info("Current version: ${appVersion}")
                     gitUtils.getRawGitHubFile(
                         FRONTEND_DOCKER_IMAGE_TEMPLATE_REPO_NAME,
